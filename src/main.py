@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Image-to-Markdown Pairing Script - Pairs URLs with prompts to generate structured MD files."""
+"""IMG-TO-VID Markdown Zipper - Pairs URLs with prompts to generate structured MD files."""
 
 import sys
 import time
@@ -18,7 +18,7 @@ console = Console()
 BASE_DIR = Path(__file__).parent.parent
 PROMPTS_DIR = BASE_DIR / "USER-FILES" / "04.INPUT" / "04.1_PROMPTS"
 NUM_FRAMES_DIR = BASE_DIR / "USER-FILES" / "04.INPUT" / "04.2_NUM_FRAMES"
-LINKS_DIR = BASE_DIR / "USER-FILES" / "04.INPUT" / "04.3_LINKS"
+LINKS_DIR = BASE_DIR / "USER-FILES" / "04.INPUT" / "04.3_IMG_LINKS"
 OUTPUT_BASE = BASE_DIR / "USER-FILES" / "05.OUTPUT"
 
 
@@ -293,6 +293,9 @@ def create_output_folder() -> Path:
 
 def setup_logging(output_folder: Path) -> None:
     """Configure Loguru logger."""
+    # Remove default handler to prevent console output
+    logger.remove()
+    # Add file-only handler
     logger.add(
         output_folder / "processing.log",
         format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
@@ -523,7 +526,6 @@ def process_file_triplet(
     logger.debug(f"Reading LINKS file: {links_file.name}")
     image_url = read_file_content(links_file)
     logger.debug(f"Validating URL: {image_url}")
-    console.print(f"[cyan]  → Validating URL: {image_url[:60]}...[/cyan]")
     validate_url(image_url)
     logger.debug(f"Reading NUM_FRAMES file: {num_frames_file.name}")
     num_frames = read_file_content(num_frames_file)
@@ -546,7 +548,6 @@ def process_file_triplet(
     else:
         relative_output = output_filename
 
-    console.print(f"[green]  ✓ Generated {relative_output}[/green]")
     return relative_output
 
 
@@ -555,7 +556,7 @@ def main() -> None:
     console.print(
         "\n[bold cyan]═══════════════════════════════════════════[/bold cyan]"
     )
-    console.print("[bold cyan]  Image-to-Markdown Pairing Script[/bold cyan]")
+    console.print("[bold cyan]  IMG-TO-VID Markdown Zipper[/bold cyan]")
     console.print(
         "[bold cyan]═══════════════════════════════════════════[/bold cyan]\n"
     )
@@ -614,8 +615,10 @@ def main() -> None:
         for prompts_file, links_file, num_frames_file, subfolder_path in all_triplets:
             try:
                 display_path = subfolder_path if subfolder_path else "ROOT"
+
+                # Update progress bar text with current file
                 bar.text = (
-                    f"→ Processing: {prompts_file.name}\n  Subfolder: {display_path}"
+                    f"→ Processing: {prompts_file.stem}\n  Subfolder: {display_path}"
                 )
 
                 # Log subfolder transitions
@@ -634,6 +637,11 @@ def main() -> None:
                 )
                 success_count += 1
                 generated_files.append(output_filename)
+
+                # Update bar text with completion status
+                bar.text = (
+                    f"✓ Generated: {prompts_file.stem}.md\n  Subfolder: {display_path}"
+                )
                 bar()
             except Exception as e:
                 logger.error(f"Processing failed: {str(e)}")
