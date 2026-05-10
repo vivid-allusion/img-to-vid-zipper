@@ -556,7 +556,7 @@ def main() -> None:
     console.print(
         "\n[bold cyan]═══════════════════════════════════════════[/bold cyan]"
     )
-    console.print("[bold cyan]  IMG-TO-VID Markdown Zipper[/bold cyan]")
+    console.print("[bold cyan]  IMG-TO-VID MARKDOWN ZIPPER[/bold cyan]")
     console.print(
         "[bold cyan]═══════════════════════════════════════════[/bold cyan]\n"
     )
